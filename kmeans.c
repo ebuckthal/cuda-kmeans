@@ -2,6 +2,8 @@
 //#include <time.h>
 //#include <stdlib.h>
 
+#include "kmeans.h"
+
 int centersChanged(float *Cxold, float *Cyold, float *Czold, float *Cx, float *Cy, float *Cz, int k) {
    int i, changed = 0;
    for (i = 0; i < k; i++) {
