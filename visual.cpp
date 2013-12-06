@@ -1,15 +1,9 @@
-#ifdef __APPLE__
-#include "GLUT/glut.h"
-#include <OPENGL/gl.h>
-#endif
-#ifdef __unix__
 #include <GL/glut.h>
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 //#include "GLSL_helper.h"
 #include <math.h>
+
 #include "kmeans.h"
 
 #define X_RANGE 50
@@ -19,8 +13,12 @@ void display(void);
 void normalize(float[3]);
 void normCrossProd(float[3], float[3], float[3]);
 
-int winWidth, winHeight;
-float angle = 0.0, axis[3], trans[3];
+int winWidth;
+int winHeight;
+float angle = 0.0;
+float axis[3];
+float trans[3];
+
 bool trackballEnabled = true;
 bool trackballMove = false;
 bool trackingMouse = false;
@@ -571,7 +569,7 @@ void display (void) {
 }
 
 // create a double buffered 500x500 pixel color window
-int mainDraw() {
+extern "C" int drawEverything(void) {
 	glutInit(NULL, NULL);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
