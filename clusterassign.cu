@@ -2,11 +2,11 @@
 __global__ void clusterAssign(float *Cx, float *Cy, float *Cz, float *Px, float *Py, float *Pz, int *assigns, int Pwidth, int k) 
 {
    int tid, i, temp_d, centerIdx;
-   int d = MAX_INT;
+   int d = INT_MAX;
 
    tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-   while (tid < width) {
+   while (tid < Pwidth) {
       for (i = 0; i < k; i++) {
          temp_d = (Px[tid] - Cx[i])*(Px[tid] - Cx[i]) 
                     + (Py[tid] - Cy[i])*(Py[tid] - Cy[i]) 
@@ -27,13 +27,13 @@ extern "C" void cudaAssign(float *Cxin, float *Cyin, float *Czin, float *Pxin, f
    float *Cx, *Cy, *Cz, *Px, *Py, *Pz;
    int *assigns;
 
-   cudaMalloc(&Cx, (unsigned long)k*sizeof(float));
-   cudaMalloc(&Cy, (unsigned long)k*sizeof(float));
-   cudaMalloc(&Cz, (unsigned long)k*sizeof(float));
-   cudaMalloc(&Px, (unsigned long)Pwidth*sizeof(float));
-   cudaMalloc(&Py, (unsigned long)Pwidth*sizeof(float));
-   cudaMalloc(&Pz, (unsigned long)Pwidth*sizeof(float));
-   cudaMalloc(&assigns, (unsigned long)Pwidth*sizeof(int));
+   cudaMalloc(&Cx, k*sizeof(float));
+   cudaMalloc(&Cy, k*sizeof(float));
+   cudaMalloc(&Cz, k*sizeof(float));
+   cudaMalloc(&Px, Pwidth*sizeof(float));
+   cudaMalloc(&Py, Pwidth*sizeof(float));
+   cudaMalloc(&Pz, Pwidth*sizeof(float));
+   cudaMalloc(&assigns, Pwidth*sizeof(int));
 
    cudaMemcpy(Cx, Cxin, k*sizeof(float), cudaMemcpyHostToDevice);
    cudaMemcpy(Cy, Cyin, k*sizeof(float), cudaMemcpyHostToDevice);
@@ -42,8 +42,10 @@ extern "C" void cudaAssign(float *Cxin, float *Cyin, float *Czin, float *Pxin, f
    cudaMemcpy(Py, Pyin, Pwidth*sizeof(float), cudaMemcpyHostToDevice);
    cudaMemcpy(Pz, Pzin, Pwidth*sizeof(float), cudaMemcpyHostToDevice);
    
+   
    clusterAssign<<<1024, 512>>>(Cx, Cy, Cz, Px, Py, Pz, assigns, Pwidth, k);
    cudaMemcpy(assignments, assigns, Pwidth*sizeof(int), cudaMemcpyDeviceToHost);
+   
    
    cudaFree(Cx);
    cudaFree(Cy);
