@@ -1,0 +1,26 @@
+Ryan Staab
+Eric Buckthal
+Susan Marano
+CSC 569
+Final Project: Distributed cuda-enabled k-means clustering
+Christopher Lupo
+
+to make: type 'make'
+
+to clean: type 'make clean'
+
+to run: ./kmeans <file1> <k>
+
+Where file 1 contains line separated triples of tab seperated floats, for example:
+
+38.8015	-122.771	2.1
+37.3649	-117.1248	2.17
+37.5468	-118.7905	2.3
+.
+.
+.
+
+and k represents the number of clusters the algorithm will produce.
+
+To run with mpirun on 8 nodes with a hostfile:
+time -p mpirun -n 8 --hostfile hostfile -mca btl_tcp_if_include eth0 ./kmeans <file> <k>
