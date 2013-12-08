@@ -6,7 +6,7 @@
 
 #include "kmeans.h"
 
-#define X_RANGE 50
+#define X_RANGE 20
 
 // some function prototypes
 void display(void);
@@ -130,13 +130,13 @@ void drawObjs() {
    //glTranslatef(0, 0, 1);	 // x, y, and z
    //glutSolidCube(2.0);
    
-   glColor3f( 0.95f, 0.0f, 0.031f );
    
    glBegin( GL_POINTS );
-   for (int i=0; i<10; i++){
-      
-		glVertex3f(xnorm[i], ynorm[i], znorm[i] ); 
-		
+   for (int i=0; i<length_data; i++){
+      int k = final_assignments[i];
+
+      glColor3f( 1.0f * ((float)k / k_total), 0.33f, 0.31f );
+      glVertex3f(Px[i], Py[i], Pz[i] ); 
    }
    glEnd();
    //glFinish();
@@ -570,7 +570,17 @@ void display (void) {
 
 // create a double buffered 500x500 pixel color window
 extern "C" int drawEverything(void) {
-	glutInit(NULL, NULL);
+         printf("drawing everything\n");
+
+         printf("%f %f %f\n", Px[0], Px[5], Px[length_data-1]);
+
+         printf("%d\n", k_total);
+
+        char *myargv [1];
+        int myargc = 1;
+        myargv [0] = "visual"; 
+
+	glutInit(&myargc, myargv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
@@ -585,29 +595,6 @@ extern "C" int drawEverything(void) {
     glPointSize( 6.0 );
     
     //Normalize data TODO DATASIZE
-    float xmax = Px[0];
-	float ymax = Py[0];
-	float zmax = Pz[0]; 
-    float xmin = Px[0];
-	float ymin = Py[0];
-	float zmin = Pz[0];
-	xnorm = (float *)calloc(sizeof(float), length_data);
-    ynorm = (float *)calloc(sizeof(float), length_data);
-    znorm = (float *)calloc(sizeof(float), length_data);
-    for(int i=1; i<length_data; i++){
-		if(Px[i] > xmax)      xmax = Px[i];
-		else if(Px[i] < xmin) xmin = Px[i];
-		if(Py[i] > ymax)      ymax = Py[i];
-		else if(Py[i] < ymin) ymin = Py[i];
-		if(Pz[i] > zmax)      zmax = Pz[i];
-		else if(Pz[i] < zmin) zmin = Pz[i];
-	}
-	
-	for(int i=0; i<length_data; i++){
-		xnorm[i] = (Px[i]/abs(xmax-xmin)) * X_RANGE;
-		ynorm[i] = (Py[i]/abs(ymax-ymin)) * X_RANGE;
-		znorm[i] = (Pz[i]/abs(zmax-zmin)) * X_RANGE;
-	}
     
 	glEnable(GL_DEPTH_TEST);
 	glutDisplayFunc(display);

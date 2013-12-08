@@ -35,16 +35,20 @@ int main(int argc, char **argv) {
 
    printf("I am (%d)\n", rank);
 
-   if (rank == ROOT)
+   if (rank == ROOT) {
       printf("...Initialized...\n");
+   }
    
    length_data = 0;
    int send_element_count = 0;
    
    /* Read in data */
    
-   if (rank == ROOT)
+   if (rank == ROOT) {
+      printf("reading file\n");
       length_data = vectorSize(argv[1]);
+      printf("file read %d\n", length_data);
+   }
    
    /* Broadcast the length of the data to all nodes */
    
@@ -58,8 +62,46 @@ int main(int argc, char **argv) {
    
    /* Read in the data */
    
-   if (rank == ROOT)
+   if (rank == ROOT) {
+      printf("getting vector\n");
       fileRead(argv[1], Px, Py, Pz, length_data);
+
+
+      float xmax = Px[0];
+      float ymax = Py[0];
+      float zmax = Pz[0]; 
+      float xmin = Px[0];
+      float ymin = Py[0];
+      float zmin = Pz[0];
+
+      int j;
+      for(j=1; j<length_data; j++){
+         if(Px[j] > xmax)
+            xmax = Px[j];
+         else if(Px[j] < xmin)
+            xmin = Px[j];
+
+         if(Py[j] > ymax)
+            ymax = Py[j];
+         else if(Py[j] < ymin)
+            ymin = Py[j];
+         
+         if(Pz[j] > zmax)
+            zmax = Pz[j];
+         else if(Pz[j] < zmin)
+            zmin = Pz[j];
+      }
+
+      printf("%f %f\n", xmax, xmin);
+         
+      for(j=0; j<length_data; j++){
+         Px[j] = (((Px[j]-xmin)* 10)/(xmax-xmin)) - 5;
+         Py[j] = (((Py[j]-ymin)* 10)/(ymax-ymin)) - 5;
+         Pz[j] = (((Pz[j]-zmin)* 10)/(zmax-zmin)) - 5;
+
+         printf("%f %f %f\n", Px[j], Py[j], Pz[j]);
+      }
+   }
    
    /* Calculate number elements to send to each node */
    
@@ -87,37 +129,35 @@ int main(int argc, char **argv) {
    
    /* k is a command line argument so we can run it with multiple vals ourselves */
    
-   int k;
    if (rank == ROOT) {
-      k = atoi(argv[2]); //TODO: error check
+      k_total = atoi(argv[2]); //TODO: error check
    }
    
    /* Broadcast the value of k */
    
-   MPI_Bcast(&k, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
+   MPI_Bcast(&k_total, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
    
-   float *Cx = (float *)calloc(sizeof(float), k);
-   float *Cy = (float *)calloc(sizeof(float), k);
-   float *Cz = (float *)calloc(sizeof(float), k);
+   float *Cx = (float *)calloc(sizeof(float), k_total);
+   float *Cy = (float *)calloc(sizeof(float), k_total);
+   float *Cz = (float *)calloc(sizeof(float), k_total);
    float *Cxold;
    float *Cyold;
    float *Czold;
-   int *final_assignments;
    int *assignments = (int *)calloc(sizeof(int), send_element_count);
-   int i;   
    
+   int i;
    
    if (rank == ROOT) {
       final_assignments = (int *)calloc(sizeof(int), length_data);
-      Cxold = (float *)calloc(sizeof(float), k);
-      Cyold = (float *)calloc(sizeof(float), k);
-      Czold = (float *)calloc(sizeof(float), k);
+      Cxold = (float *)calloc(sizeof(float), k_total);
+      Cyold = (float *)calloc(sizeof(float), k_total);
+      Czold = (float *)calloc(sizeof(float), k_total);
    
       //initialize the k cluster centers to random points from the data
       int r;
       
       srand(time(NULL));
-      for (i = 0; i < k; i++) {
+      for (i = 0; i < k_total; i++) {
          r = rand() % length_data; //TODO: check if same number twice
          Cxold[i] = Cx[i] = Px[r];
          Cyold[i] = Cy[i] = Py[r];
@@ -129,31 +169,32 @@ int main(int argc, char **argv) {
       printf("...Clusters initialized...\n");
    
    int changed = 0;
-   int *num_assigned = (int *)calloc(sizeof(int), k);
+   int *num_assigned = (int *)calloc(sizeof(int), k_total);
    
    
    
+   int iter = 0;
    do {
       //Bcast the cluster centers
-      MPI_Bcast(Cx, k, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
-      MPI_Bcast(Cy, k, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
-      MPI_Bcast(Cz, k, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
+      MPI_Bcast(Cx, k_total, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
+      MPI_Bcast(Cy, k_total, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
+      MPI_Bcast(Cz, k_total, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
 
       if (rank == ROOT)
          printf("...Broadcasted centers...\n");
 
       // do actual clustering assignments with cuda stuff
-      cudaAssign(Cx, Cy, Cz, recvbufPx, recvbufPy, recvbufPz, assignments, send_element_count, k);
+      cudaAssign(Cx, Cy, Cz, recvbufPx, recvbufPy, recvbufPz, assignments, send_element_count, k_total);
       
       if (rank == ROOT)
          printf("...Cuda finished...\n");
       
       //Each node has a three k-length array, each cell represents the sums of its assigned data vals, for x, y, z
       
-      float *Cxtemp = (float *)calloc(sizeof(float), k);
-      float *Cytemp = (float *)calloc(sizeof(float), k);
-      float *Cztemp = (float *)calloc(sizeof(float), k);
-      int *num_assigned_temp = (int *)calloc(sizeof(int), k);
+      float *Cxtemp = (float *)calloc(sizeof(float), k_total);
+      float *Cytemp = (float *)calloc(sizeof(float), k_total);
+      float *Cztemp = (float *)calloc(sizeof(float), k_total);
+      int *num_assigned_temp = (int *)calloc(sizeof(int), k_total);
       
       if (rank == ROOT)
          printf("...Calloced...\n");
@@ -174,10 +215,10 @@ int main(int argc, char **argv) {
       
       /* Reduce (sum) the local cluster means onto root */
       
-      MPI_Reduce(Cxtemp, Cx, k, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
-      MPI_Reduce(Cytemp, Cy, k, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
-      MPI_Reduce(Cztemp, Cz, k, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
-      MPI_Reduce(num_assigned_temp, num_assigned, k, MPI_INT, MPI_SUM, ROOT, MPI_COMM_WORLD);
+      MPI_Reduce(Cxtemp, Cx, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
+      MPI_Reduce(Cytemp, Cy, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
+      MPI_Reduce(Cztemp, Cz, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
+      MPI_Reduce(num_assigned_temp, num_assigned, k_total, MPI_INT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       
       if (rank == ROOT)
          printf("...Reduced...\n");
@@ -188,7 +229,7 @@ int main(int argc, char **argv) {
       
       if (rank == ROOT) {
          
-         for (i = 0; i < k; i++) {
+         for (i = 0; i < k_total; i++) {
             Cx[i] /= num_assigned[i];
             Cy[i] /= num_assigned[i];
             Cz[i] /= num_assigned[i];
@@ -207,8 +248,8 @@ int main(int argc, char **argv) {
       /* Check if cluster means changed, and update old */
       
       if (rank == ROOT) {
-         changed = centersChanged(Cxold, Cyold, Czold, Cx, Cy, Cz, k);
-         for (i = 0; i < k; i++) {
+         changed = centersChanged(Cxold, Cyold, Czold, Cx, Cy, Cz, k_total);
+         for (i = 0; i < k_total; i++) {
             Cxold[i] = Cx[i];
             Cyold[i] = Cy[i];
             Czold[i] = Cz[i];
@@ -221,10 +262,13 @@ int main(int argc, char **argv) {
    
       MPI_Barrier(MPI_COMM_WORLD);
    
+   iter++;
    } while (changed);
    
-   if (rank == ROOT)
+   if (rank == ROOT) {
       printf("...Finished clustering...\n");
+      printf("iter: %d\n", iter);
+   }
       
    /* Send final assignments all to master for visualization */
    
@@ -244,14 +288,13 @@ int main(int argc, char **argv) {
    //TODO: do the opengl stuff and output 3d visualization
    
    free(Cx); free(Cy); free(Cz);
-   if (rank == ROOT) {
-      free(Px); free(Py); free(Pz);
-      free(final_assignments);
-   }
    
    MPI_Finalize();
-
-   drawEverything();
+   
+   if(rank == ROOT) {
+      drawEverything();
+      free(final_assignments);
+   }
 }
 
 int vectorSize(char *filename) {

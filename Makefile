@@ -21,7 +21,7 @@ kmeans.o: kmeans.c
 clusterassign.o: clusterassign.cu
 	$(NVCC) $(OBJ_FLAGS) clusterassign.cu
 
-visual.o:
+visual.o: visual.cpp
 	g++ $(OBJ_FLAGS) visual.cpp $(OPENGL_LD) 
 clean:
 	rm -rf kmeans *.o
