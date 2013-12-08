@@ -8,6 +8,11 @@
 
 #define X_RANGE 20
 
+
+int delay = 100;
+int time_jump = 50;
+int iter = 100;
+
 // some function prototypes
 void display(void);
 void normalize(float[3]);
@@ -42,9 +47,7 @@ GLfloat objectXform[4][4] = {
 
 GLfloat *trackballXform = (GLfloat *)objectXform;
 
-float* xnorm;
-float* ynorm;
-float* znorm;
+int step = 0;
 
 // initial viewer position
 static GLdouble modelTrans[] = {0.0, 0.0, -5.0};
@@ -135,7 +138,8 @@ void drawObjs() {
    for (int i=0; i<length_data; i++){
       int k = final_assignments[i];
 
-      glColor3f( 1.0f * ((float)k / k_total), 0.33f, 0.31f );
+      //glColor3f( 1.0f * ((float)k / k_total), 0.33f, 0.31f );
+      glColor3f( 1.0f * ((float)step/iter), 0.33f, 0.31f );
       glVertex3f(Px[i], Py[i], Pz[i] ); 
    }
    glEnd();
@@ -524,8 +528,56 @@ void mouseCallback(int button, int state, int x, int y) {
 }
       
 void keyCallback(unsigned char key, int x, int y) {
-
+	switch(key){
+	case 'd' :
+		//Step to next interation
+		if(step < iter-1)
+			step++;
+		break;
+	case 'a' :
+		//Step to previous interation
+		if(step > 0)
+			step--;
+		break;
+	case 'w' :
+		//increase speed
+		if(delay - time_jump > 0)
+			delay -= time_jump
+		break;	
+	case 's' :
+		//decrease speed
+		delay += time_jump
+		break;		
+	case 'g' :
+		//Run through all interations
+		pause = false;
+		timer();
+		break;
+	case 'r' :
+		//Rest 
+		step = 0;
+		break;	
+	}
+	case 'p' :
+		//pause 
+		pause = true;
+		break;	
+	}
    glutPostRedisplay();
+  
+}
+
+void timer(){
+	
+	if(!pause){
+		//Update clusters
+		if(step < iter-1)
+			step++;
+			
+
+		glutTimerFunc(delay, timer, 1);
+	}
+	
 }
 
 
@@ -570,61 +622,24 @@ void display (void) {
 
 // create a double buffered 500x500 pixel color window
 extern "C" int drawEverything(void) {
-<<<<<<< HEAD
-         printf("drawing everything\n");
 
-         printf("%f %f %f\n", Px[0], Px[5], Px[length_data-1]);
+    printf("drawing everything\n");
 
-         printf("%d\n", k_total);
-
-        char *myargv [1];
-        int myargc = 1;
-        myargv [0] = "visual"; 
+    char *myargv [1];
+    int myargc = 1;
+    myargv [0] = "visual"; 
 
 	glutInit(&myargc, myargv);
-=======
-	glutInit(NULL, NULL);
->>>>>>> cb19c1f3d9a28bf91833602db16ec864c2690386
+	
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("Mouse motion example");
-    printf("Interaction directions:\n\nLeft mouse button: hold down and drag to change orientation\n");
-    printf("Middle mouse button: hold down and drag to shift horizontally or vertically\n");
-    printf("Right mouse button: hold down and drag vertically to move in and out of the screen\n");
+	glutCreateWindow("k-means clustering");
     
     glEnable( GL_POINT_SMOOTH );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize( 6.0 );
-    
-    //Normalize data TODO DATASIZE
-<<<<<<< HEAD
-=======
-    float xmax = Px[0];
-	float ymax = Py[0];
-	float zmax = Pz[0]; 
-    float xmin = Px[0];
-	float ymin = Py[0];
-	float zmin = Pz[0];
-	xnorm = (float *)calloc(sizeof(float), length_data);
-    ynorm = (float *)calloc(sizeof(float), length_data);
-    znorm = (float *)calloc(sizeof(float), length_data);
-    for(int i=1; i<length_data; i++){
-		if(Px[i] > xmax)      xmax = Px[i];
-		else if(Px[i] < xmin) xmin = Px[i];
-		if(Py[i] > ymax)      ymax = Py[i];
-		else if(Py[i] < ymin) ymin = Py[i];
-		if(Pz[i] > zmax)      zmax = Pz[i];
-		else if(Pz[i] < zmin) zmin = Pz[i];
-	}
-	
-	for(int i=0; i<length_data; i++){
-		xnorm[i] = (Px[i]/abs(xmax-xmin)) * X_RANGE;
-		ynorm[i] = (Py[i]/abs(ymax-ymin)) * X_RANGE;
-		znorm[i] = (Pz[i]/abs(zmax-zmin)) * X_RANGE;
-	}
->>>>>>> cb19c1f3d9a28bf91833602db16ec864c2690386
     
 	glEnable(GL_DEPTH_TEST);
 	glutDisplayFunc(display);
