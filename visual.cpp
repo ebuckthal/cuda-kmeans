@@ -11,7 +11,8 @@
 
 int delay = 100;
 int time_jump = 50;
-int iter = 100;
+
+bool pause = false;
 
 // some function prototypes
 void display(void);
@@ -526,6 +527,19 @@ void mouseCallback(int button, int state, int x, int y) {
          break;
    }
 }
+
+void timer(int p){
+	
+	if(!pause){
+		//Update clusters
+		if(step < iter-1)
+			step++;
+			
+
+		glutTimerFunc(delay, timer, 1);
+	}
+	
+}
       
 void keyCallback(unsigned char key, int x, int y) {
 	switch(key){
@@ -542,22 +556,21 @@ void keyCallback(unsigned char key, int x, int y) {
 	case 'w' :
 		//increase speed
 		if(delay - time_jump > 0)
-			delay -= time_jump
+			delay -= time_jump;
 		break;	
 	case 's' :
 		//decrease speed
-		delay += time_jump
+		delay += time_jump;
 		break;		
 	case 'g' :
 		//Run through all interations
 		pause = false;
-		timer();
+		timer(0);
 		break;
 	case 'r' :
 		//Rest 
 		step = 0;
 		break;	
-	}
 	case 'p' :
 		//pause 
 		pause = true;
@@ -567,18 +580,6 @@ void keyCallback(unsigned char key, int x, int y) {
   
 }
 
-void timer(){
-	
-	if(!pause){
-		//Update clusters
-		if(step < iter-1)
-			step++;
-			
-
-		glutTimerFunc(delay, timer, 1);
-	}
-	
-}
 
 
 //---------------------------------------------------------

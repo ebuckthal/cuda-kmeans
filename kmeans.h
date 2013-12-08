@@ -10,11 +10,13 @@ float *Px;
 float *Py;
 float *Pz;
 
+int **assignments_per_iter;
+
 int *final_assignments;
 int length_data;
+int iter;
 
 int k_total;
-int length_data;
 
 int mainDraw(void);
 

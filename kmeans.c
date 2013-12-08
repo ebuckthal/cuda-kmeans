@@ -92,14 +92,14 @@ int main(int argc, char **argv) {
             zmin = Pz[j];
       }
 
-      printf("%f %f\n", xmax, xmin);
+      //printf("%f %f\n", xmax, xmin);
          
       for(j=0; j<length_data; j++){
          Px[j] = (((Px[j]-xmin)* 10)/(xmax-xmin)) - 5;
          Py[j] = (((Py[j]-ymin)* 10)/(ymax-ymin)) - 5;
          Pz[j] = (((Pz[j]-zmin)* 10)/(zmax-zmin)) - 5;
 
-         printf("%f %f %f\n", Px[j], Py[j], Pz[j]);
+         //printf("%f %f %f\n", Px[j], Py[j], Pz[j]);
       }
    }
    
@@ -146,12 +146,16 @@ int main(int argc, char **argv) {
    int *assignments = (int *)calloc(sizeof(int), send_element_count);
    
    int i;
+
+   int a_per_i_length = 110;
    
    if (rank == ROOT) {
       final_assignments = (int *)calloc(sizeof(int), length_data);
       Cxold = (float *)calloc(sizeof(float), k_total);
       Cyold = (float *)calloc(sizeof(float), k_total);
       Czold = (float *)calloc(sizeof(float), k_total);
+
+      assignments_per_iter = (int **)calloc(sizeof(int), length_data * a_per_i_length);
    
       //initialize the k cluster centers to random points from the data
       int r;
@@ -170,10 +174,10 @@ int main(int argc, char **argv) {
    
    int changed = 0;
    int *num_assigned = (int *)calloc(sizeof(int), k_total);
+
    
    
-   
-   int iter = 0;
+   iter = 0;
    do {
       //Bcast the cluster centers
       MPI_Bcast(Cx, k_total, MPI_FLOAT, ROOT, MPI_COMM_WORLD);
@@ -219,13 +223,15 @@ int main(int argc, char **argv) {
       MPI_Reduce(Cytemp, Cy, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       MPI_Reduce(Cztemp, Cz, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       MPI_Reduce(num_assigned_temp, num_assigned, k_total, MPI_INT, MPI_SUM, ROOT, MPI_COMM_WORLD);
+
+      /*MPI_Gather(assignments, send_element_count, MPI_INT, assignments_per_iter[iter], 
+                    send_element_count, MPI_INT, ROOT, MPI_COMM_WORLD);
+      */
       
       if (rank == ROOT)
          printf("...Reduced...\n");
       
       /* As root calculate final cluster centers */
-      
-      
       
       if (rank == ROOT) {
          
@@ -259,10 +265,12 @@ int main(int argc, char **argv) {
       MPI_Bcast(&changed, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
    
    /* Continue the loop while cluster centers are not same as before */
+
    
       MPI_Barrier(MPI_COMM_WORLD);
+
    
-   iter++;
+      iter++;
    } while (changed);
    
    if (rank == ROOT) {
@@ -295,6 +303,10 @@ int main(int argc, char **argv) {
       drawEverything();
       free(final_assignments);
    }
+
+}
+
+int addIteration(assignments) {
 
 }
 
