@@ -570,6 +570,7 @@ void display (void) {
 
 // create a double buffered 500x500 pixel color window
 extern "C" int drawEverything(void) {
+<<<<<<< HEAD
          printf("drawing everything\n");
 
          printf("%f %f %f\n", Px[0], Px[5], Px[length_data-1]);
@@ -581,6 +582,9 @@ extern "C" int drawEverything(void) {
         myargv [0] = "visual"; 
 
 	glutInit(&myargc, myargv);
+=======
+	glutInit(NULL, NULL);
+>>>>>>> cb19c1f3d9a28bf91833602db16ec864c2690386
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(500, 500);
 	glutInitWindowPosition(100, 100);
@@ -595,6 +599,32 @@ extern "C" int drawEverything(void) {
     glPointSize( 6.0 );
     
     //Normalize data TODO DATASIZE
+<<<<<<< HEAD
+=======
+    float xmax = Px[0];
+	float ymax = Py[0];
+	float zmax = Pz[0]; 
+    float xmin = Px[0];
+	float ymin = Py[0];
+	float zmin = Pz[0];
+	xnorm = (float *)calloc(sizeof(float), length_data);
+    ynorm = (float *)calloc(sizeof(float), length_data);
+    znorm = (float *)calloc(sizeof(float), length_data);
+    for(int i=1; i<length_data; i++){
+		if(Px[i] > xmax)      xmax = Px[i];
+		else if(Px[i] < xmin) xmin = Px[i];
+		if(Py[i] > ymax)      ymax = Py[i];
+		else if(Py[i] < ymin) ymin = Py[i];
+		if(Pz[i] > zmax)      zmax = Pz[i];
+		else if(Pz[i] < zmin) zmin = Pz[i];
+	}
+	
+	for(int i=0; i<length_data; i++){
+		xnorm[i] = (Px[i]/abs(xmax-xmin)) * X_RANGE;
+		ynorm[i] = (Py[i]/abs(ymax-ymin)) * X_RANGE;
+		znorm[i] = (Pz[i]/abs(zmax-zmin)) * X_RANGE;
+	}
+>>>>>>> cb19c1f3d9a28bf91833602db16ec864c2690386
     
 	glEnable(GL_DEPTH_TEST);
 	glutDisplayFunc(display);

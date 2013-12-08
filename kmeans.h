@@ -14,6 +14,8 @@ int *final_assignments;
 int length_data;
 
 int k_total;
+int length_data;
+
 int mainDraw(void);
 
 int centersChanged(float*, float*, float*, float*, float*, float*, int);

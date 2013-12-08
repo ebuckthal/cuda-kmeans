@@ -295,6 +295,7 @@ int main(int argc, char **argv) {
       drawEverything();
       free(final_assignments);
    }
+
 }
 
 int vectorSize(char *filename) {
