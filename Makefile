@@ -10,10 +10,16 @@ CUDA_LIBS=-L/usr/local/cuda/lib64 -lcudart
 OPENGL_LD=-DGL_GLEXT_PROTOTYPES -lGL -lglut -lGLU -lm
 
 
-all: kmeans
+all: kmeans kmeansserial
 
 kmeans: kmeans.o clusterassign.o visual.o
 	$(CC) -o kmeans kmeans.o clusterassign.o visual.o $(CUDA_INC) $(CUDA_LIBS) $(LIBS) $(OPENGL_LD)
+
+kmeansserial: kmeansserial.o clusterassign.o visual.o
+	$(CC) -o kmeansserial kmeansserial.o clusterassign.o visual.o $(CUDA_INC) $(CUDA_LIBS) $(LIBS) $(OPENGL_LD)
+
+kmeansserial.o: kmeansserial.c
+	$(CC) $(OBJ_FLAGS) kmeansserial.c
 
 kmeans.o: kmeans.c
 	$(CC) $(OBJ_FLAGS) kmeans.c

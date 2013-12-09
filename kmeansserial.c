@@ -10,17 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-float *Px;
-float *Py;
-float *Pz;
-
-int *final_assignments;
-int length_data;
-int k_total;
-
-int centersChanged(float*, float*, float*, float*, float*, float*, int);
-int vectorSize(char *);
-int fileRead(char *, float *, float *, float *, int);
+#include "kmeans.h"
 
 int main(int argc, char **argv) {
    /* Input error checking */
@@ -40,6 +30,37 @@ int main(int argc, char **argv) {
    
    printf("...File read complete...\n");
    fflush(stdout);
+
+      float xmax = Px[0];
+      float ymax = Py[0];
+      float zmax = Pz[0]; 
+      float xmin = Px[0];
+      float ymin = Py[0];
+      float zmin = Pz[0];
+	 int j;
+
+   for(j=1; j<length_data; j++){
+      if(Px[j] > xmax)
+         xmax = Px[j];
+      else if(Px[j] < xmin)
+         xmin = Px[j];
+
+      if(Py[j] > ymax)
+         ymax = Py[j];
+      else if(Py[j] < ymin)
+         ymin = Py[j];
+      
+      if(Pz[j] > zmax)
+         zmax = Pz[j];
+      else if(Pz[j] < zmin)
+         zmin = Pz[j];
+   }
+      
+   for(j=0; j<length_data; j++){
+      Px[j] = (((Px[j]-xmin)* 10)/(xmax-xmin)) - 5;
+      Py[j] = (((Py[j]-ymin)* 10)/(ymax-ymin)) - 5;
+      Pz[j] = (((Pz[j]-zmin)* 10)/(zmax-zmin)) - 5;
+   }
    
    k_total = atoi(argv[2]); //TODO: error check
    
@@ -64,8 +85,8 @@ int main(int argc, char **argv) {
    
    int changed = 0;
    int *num_assigned = (int *)calloc(sizeof(int), k_total);
-   int j, temp_d, centerIdx;
-   int d = INT_MAX;
+   int centerIdx;
+   float d,temp_d;
    
    printf("...Starting loop...\n");
    fflush(stdout);
@@ -73,6 +94,7 @@ int main(int argc, char **argv) {
    do {
       // do actual clustering assignments
       for (j = 0; j < length_data; j++) {
+		 d = INT_MAX/1.0;
          for (i = 0; i < k_total; i++) {
             temp_d = (Px[j] - Cx[i])*(Px[j] - Cx[i]) 
                        + (Py[j] - Cy[i])*(Py[j] - Cy[i]) 
@@ -86,6 +108,10 @@ int main(int argc, char **argv) {
       }
       
       /* Calculate local new cluster center means */
+	  for(i=0; i < k_total; i++){
+	     Cx[i] = Cy[i] = Cz[i] = 0;
+		 num_assigned[i] = 0;
+      }
       
       for (i = 0; i < length_data; i++) {
          Cx[final_assignments[i]] += Px[i];
@@ -109,7 +135,14 @@ int main(int argc, char **argv) {
          Cxold[i] = Cx[i];
          Cyold[i] = Cy[i];
          Czold[i] = Cz[i];
+
+
       }
+			  int z = 0;
+			  for(; z < k_total; z++) {
+				  printf("%d ", num_assigned[z]);
+			  }
+			 printf("\n");
    
    /* Continue the loop while cluster centers are not same as before */
    } while (changed);
@@ -118,6 +151,10 @@ int main(int argc, char **argv) {
    
    free(Cxold); free(Cyold); free(Czold);
    free(Cx); free(Cy); free(Cz);
+
+	assignments_per_iter = final_assignments;
+	iter = 1;
+
    
    drawEverything();
    free(final_assignments);

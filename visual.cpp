@@ -421,7 +421,7 @@ extern "C" int drawEverything(void) {
     glEnable( GL_POINT_SMOOTH );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glPointSize( 6.0 );
+    glPointSize( 4.0 );
     
 	glEnable(GL_DEPTH_TEST);
 	glutDisplayFunc(display);
