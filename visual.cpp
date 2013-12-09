@@ -9,9 +9,8 @@
 #define X_RANGE 20
 
 
-int delay = 100;
+int delay = 10;
 int time_jump = 50;
-
 bool pause = false;
 
 // some function prototypes
@@ -137,11 +136,12 @@ void drawObjs() {
    
    glBegin( GL_POINTS );
    for (int i=0; i<length_data; i++){
-      int k = final_assignments[i];
+      int k = assignments_per_iter[step*length_data+i];		
 
-      //glColor3f( 1.0f * ((float)k / k_total), 0.33f, 0.31f );
-      glColor3f( 1.0f * ((float)step/iter), 0.33f, 0.31f );
+      glColor3f( 1.0f * ((float)k / k_total), 0.33f, 0.31f );
+      //glColor3f( 1.0f * ((float)step/iter), 0.33f, 0.31f );
       glVertex3f(Px[i], Py[i], Pz[i] ); 
+		
    }
    glEnd();
    //glFinish();
@@ -152,227 +152,6 @@ void drawObjs() {
    return;
 }
 
-
-void drawTorus() {
-
-   // prepare to draw lower torus
-   glPushMatrix();
-
-   // set the material
-   GLfloat diffuseColor[] = {1.0, 0.0, 1.0, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor);
-
-   // locate it in the scene
-   glMatrixMode(GL_MODELVIEW);
-
-   /* draw the lower Torus - parameters are inner radius, outer radius, 
-   num sides, num rings */
-   glutSolidTorus(.3, 2, 30, 30);
-
-   glPopMatrix();
-   
-
-   // prepare to draw middle torus
-   glPushMatrix();
-
-   // set the material
-   GLfloat diffuseColor2[] = {1, 1, 1, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor2);
-
-   // locate it in the scene
-   glMatrixMode(GL_MODELVIEW);
-
-   // Rotate about the bottom scoop
-   glTranslatef(0, 0, -1.2);
-   glRotatef(7, 1, 0, 0);
-   glTranslatef(0, 0, -0.5);
-   
-   glutSolidTorus(.25, 1.8, 30, 30);
-
-   glPopMatrix();
-
-   // prepare to draw upper torus
-   glPushMatrix();
-
-   // set the material
-   GLfloat diffuseColor3[] = {0.2, 1, 0.2, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor3);
-
-   // locate it in the scene
-   glMatrixMode(GL_MODELVIEW);
-
-   // Rotate about the bottom scoop
-   glTranslatef(0, .2, -2.6);
-   glRotatef(-1, 1, 0, 0);
-   glTranslatef(0, 0, -0.5);
-   
-   
-   glutSolidTorus(.22, 1.73, 30, 30);
-
-   glPopMatrix();
-
-   return;
-}
-
-void drawSphere() {
-   
-   // prepare to draw lower sphere
-   glPushMatrix();
-
-   // set the material
-   GLfloat diffuseColor[] = {1.0, 0.0, 1.0, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor);
-
-   // locate it in the scene
-   glMatrixMode(GL_MODELVIEW);
-
-   
-   glTranslatef(0, 0, -0.5);	 // x, y, and z
-
-   // draw the sphere - parameters are radius, number slices, and number stacks
-   glutSolidSphere(2, 30, 30);
-
-   glPopMatrix();
-
-
-   // prepare to draw middle sphere
-   glPushMatrix();
-
-   GLfloat diffuseColor2[] = {1, 1, 1, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor2);
-
-   // rotate around bottom sphere
-   glTranslatef(0, 0, -1.6);
-   glRotatef(20, 1, 0, 0);
-   glTranslatef(0, 0, -0.5);
-
-
-   glutSolidSphere(1.8, 30, 30);
-
-   // recover the transform state
-   glPopMatrix();
-
-
-   // prepare to draw upper sphere
-   glPushMatrix();
-
-   GLfloat diffuseColor3[] = {0.2, 1, 0.2, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor3);
-
-   // rotate around bottom sphere
-   glTranslatef(0, 0, -3.1);
-   glRotatef(12, 1, 0, 0);
-   glTranslatef(0, 0, -0.5);
-
-
-   glutSolidSphere(1.7, 30, 30);
-
-   // recover the transform state
-   glPopMatrix();
-
-   return;
-}
-
-
-void drawCone() {
-
-   // save the transformation state
-   glPushMatrix();
-
-   // set the material
-   GLfloat diffuseColor[] = {0.9, 0.7, 0.05, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor);
-
-   // locate it in the scene
-   glMatrixMode(GL_MODELVIEW);
-   // Adjust the translate and rotation to make the cone the right
-   //    shape and in the right place
-   glTranslatef(0, 0, 0);	 // x, y, and z
-   glRotatef(0, 0, 0, 0);  // angle and axis (x, y, z components)
-   // draw the cone - parameters are bottom radius, height, and number
-   // of slices horizontally and radially
-   glutSolidCone(2.0, 5.0, 30, 30);
-
-   // recover the transform state
-   glPopMatrix();
-
-   return;
-}
-
-
-void drawBox() {
-
-   int i;
-
-   // set the material
-   GLfloat diffuseColor[] = {0.1, 0.1, 0.1, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor);
-
-   // locate it in the scene
-   glMatrixMode(GL_MODELVIEW);
-
-   // Make sprinkls/choclate chips
-   for(i = 0; i < 20; i++){
-
-      //Place on top of scoop surface and rotate down/over
-      //glTranslatef(0, 0, -2);
-
-      glPushMatrix();
-      glTranslatef(0, 0, -3.5);
-      glRotatef(i*10, (i%3), (i%2), 1);
-      //glRotatef(i*-15, (i%5), (i%7), 1);
-      glTranslatef(0, 0, -1.7);
-   
-      //rotate chip randomly-ish
-      glRotatef(20*i, 0 , 0, 1);
-      glRotatef(10*i, 1 , 1, 0);
-
-      //Make flatter
-      glScalef(5,3,1);
-
-      // draw the box - parameter is side length
-      glutSolidCube(.1);
-
-      glPopMatrix();
-
-   }
-
-   // set the material
-   GLfloat diffuseColor2[] = {1, 0.1, 0.1, 1.0};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor2);
-
-   // Make sprinkls/choclate chips
-   for(i = 0; i < 36; i++){
-
-      //Place on top of scoop surface and rotate down/over
-      //glTranslatef(0, 0, -2);
-
-      glPushMatrix();
-      glTranslatef(0.2, 0.2, -3.3);
-      glRotatef(i*10, (i%2), (i%3), 1);
-      glTranslatef(0.5, 0.5, -1.7);
-   
-      //rotate chip randomly-ish
-      glRotatef(20*i, 0 , 0, 1);
-      glRotatef(10*i, 1 , 1, 0);
-
-      //Make flatter
-      glScalef(5,3,1);
-
-      // draw the box - parameter is side length
-      glutSolidCube(.1);
-
-      glPopMatrix();
-
-   }
-
-   // draw the box - parameter is side length
-   glutSolidCube(1);
-
-   
-
-   return;
-}
 
 
 
@@ -530,14 +309,15 @@ void mouseCallback(int button, int state, int x, int y) {
 
 void timer(int p){
 	
-	if(!pause){
-		//Update clusters
-		if(step < iter-1)
-			step++;
+	
+	//Update clusters
+	if(step < iter-1)
+		step++;
 			
-
+	if(!pause){
 		glutTimerFunc(delay, timer, 1);
 	}
+	glutPostRedisplay();
 	
 }
       
@@ -619,6 +399,7 @@ void display (void) {
    glPopMatrix();
 
    glutSwapBuffers();
+
 }
 
 // create a double buffered 500x500 pixel color window
