@@ -10,7 +10,7 @@ float *Px;
 float *Py;
 float *Pz;
 
-int **assignments_per_iter;
+int *assignments_per_iter;
 
 int *final_assignments;
 int length_data;

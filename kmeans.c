@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
       Cyold = (float *)calloc(sizeof(float), k_total);
       Czold = (float *)calloc(sizeof(float), k_total);
 
-      assignments_per_iter = (int **)calloc(sizeof(int), length_data * a_per_i_length);
+      assignments_per_iter = (int *)calloc(sizeof(int), length_data * a_per_i_length);
    
       //initialize the k cluster centers to random points from the data
       int r;
@@ -220,13 +220,13 @@ int main(int argc, char **argv) {
       /* Reduce (sum) the local cluster means onto root */
       
       MPI_Reduce(Cxtemp, Cx, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
-      MPI_Reduce(Cytemp, Cy, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       MPI_Reduce(Cztemp, Cz, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       MPI_Reduce(num_assigned_temp, num_assigned, k_total, MPI_INT, MPI_SUM, ROOT, MPI_COMM_WORLD);
 
-      /*MPI_Gather(assignments, send_element_count, MPI_INT, assignments_per_iter[iter], 
-                    send_element_count, MPI_INT, ROOT, MPI_COMM_WORLD);
-      */
+
+      MPI_Gather(assignments, send_element_count, MPI_INT, &(assignments_per_iter[iter*length_data]), 
+                  send_element_count, MPI_INT, ROOT, MPI_COMM_WORLD);
+      
       
       if (rank == ROOT)
          printf("...Reduced...\n");
