@@ -405,18 +405,15 @@ void display (void) {
 // create a double buffered 500x500 pixel color window
 extern "C" int drawEverything(void) {
 
-    printf("drawing everything\n");
-
-    char *myargv [1];
     int myargc = 1;
-    myargv [0] = "visual"; 
+    char *myargv[7]= { "visual" }; 
 
-	glutInit(&myargc, myargv);
-	
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(500, 500);
-	glutInitWindowPosition(100, 100);
-	glutCreateWindow("k-means clustering");
+    glutInit(&myargc, myargv);
+      
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowSize(500, 500);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("k-means clustering");
     
     glEnable( GL_POINT_SMOOTH );
     glEnable( GL_BLEND );

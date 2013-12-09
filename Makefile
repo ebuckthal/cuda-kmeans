@@ -30,4 +30,4 @@ clusterassign.o: clusterassign.cu
 visual.o: visual.cpp
 	g++ $(OBJ_FLAGS) visual.cpp $(OPENGL_LD) 
 clean:
-	rm -rf kmeans *.o
+	rm -rf kmeans kmeansserial *.o
