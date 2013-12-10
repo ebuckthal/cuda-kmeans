@@ -45,6 +45,8 @@ GLfloat objectXform[4][4] = {
    {0.0, 0.0, 0.0, 1.0}
 };
 
+
+
 GLfloat *trackballXform = (GLfloat *)objectXform;
 
 int step = 0;
@@ -118,6 +120,19 @@ void setUpLight() {
 //--------------------------------------------------------
 //  Set up the objects
 
+GLfloat cc[20][3] = {
+{1.0, 0.0, 0.0},
+{1.0, 1.0, 0.0},
+{1.0, 1.0, 1.0},
+{0.0, 0.0, 1.0},
+{0.0, 1.0, 1.0},
+{0.0, 1.0, 0.2},
+{0.3, 0.5, 0.3},
+{0.5, 0.3, 0.2},
+{0.5, 0.0, 0.2},
+{0.2, 0.0, 0.5}
+} ;
+
 void drawObjs() {
 
    // save the transformation state
@@ -138,7 +153,7 @@ void drawObjs() {
    for (int i=0; i<length_data; i++){
       int k = assignments_per_iter[step*length_data+i];		
 
-      glColor3f( 1.0f * ((float)k / k_total), 0.33f, 0.31f );
+      glColor3f( cc[k][0],cc[k][1], cc[k][2]);
       //glColor3f( 1.0f * ((float)step/iter), 0.33f, 0.31f );
       glVertex3f(Px[i], Py[i], Pz[i] ); 
 		
@@ -411,7 +426,7 @@ extern "C" int drawEverything(void) {
     glutInit(&myargc, myargv);
       
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowSize(500, 500);
+    glutInitWindowSize(800, 800);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("k-means clustering");
     
