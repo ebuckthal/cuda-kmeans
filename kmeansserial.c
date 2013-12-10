@@ -15,7 +15,7 @@
 int main(int argc, char **argv) {
    /* Input error checking */
 
-   if (argc != 3) {
+   if (argc < 3) {
       printf("Usage: kmeans <file1> <k>\n");
       return 1;
    }
@@ -138,11 +138,11 @@ int main(int argc, char **argv) {
 
 
       }
-			  int z = 0;
-			  for(; z < k_total; z++) {
-				  printf("%d ", num_assigned[z]);
-			  }
-			 printf("\n");
+			  //int z = 0;
+			  //for(; z < k_total; z++) {
+				//  printf("%d ", num_assigned[z]);
+			  //}
+			// printf("\n");
    
    /* Continue the loop while cluster centers are not same as before */
    } while (changed);
@@ -155,8 +155,8 @@ int main(int argc, char **argv) {
 	assignments_per_iter = final_assignments;
 	iter = 1;
 
-   
-   drawEverything();
+   if((argc >= 4) && ((strcmp(argv[3], "-d" )==0)))
+      drawEverything();
    free(final_assignments);
 }
 
