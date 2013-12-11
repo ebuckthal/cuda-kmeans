@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "kmeans.h"
 
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
    
    fileRead(argv[1], Px, Py, Pz, length_data);
    
-   printf("...File read complete...\n");
+   //printf("...File read complete...\n");
    fflush(stdout);
 
       float xmax = Px[0];
@@ -88,8 +89,10 @@ int main(int argc, char **argv) {
    int centerIdx;
    float d,temp_d;
    
-   printf("...Starting loop...\n");
+   //printf("...Starting loop...\n");
    fflush(stdout);
+   
+   int iter2 = 0;
    
    do {
       // do actual clustering assignments
@@ -123,12 +126,20 @@ int main(int argc, char **argv) {
       /* calculate final cluster centers */
  
       for (i = 0; i < k_total; i++) {
-         Cx[i] /= num_assigned[i];
-         Cy[i] /= num_assigned[i];
-         Cz[i] /= num_assigned[i];
+         
+         if(num_assigned[i] > 0) {
+         
+               assert(num_assigned[i] > 0);
+            
+               Cx[i] /= num_assigned[i];
+               Cy[i] /= num_assigned[i];
+               Cz[i] /= num_assigned[i];
+            
+         }
       } 
       
       /* Check if cluster means changed, and update old */
+      //printf("%d\n", iter2);
       
       changed = centersChanged(Cxold, Cyold, Czold, Cx, Cy, Cz, k_total);
       for (i = 0; i < k_total; i++) {
@@ -145,9 +156,10 @@ int main(int argc, char **argv) {
 			// printf("\n");
    
    /* Continue the loop while cluster centers are not same as before */
+   iter2++;
    } while (changed);
    
-   printf("...Finished clustering...\n");
+   //printf("...Finished clustering...\n");
    
    free(Cxold); free(Cyold); free(Czold);
    free(Cx); free(Cy); free(Cz);

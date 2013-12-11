@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "kmeans.h"
 
@@ -148,7 +149,7 @@ int main(int argc, char **argv) {
    
    int i;
 
-   int a_per_i_length = 110;
+   int a_per_i_length = 1000;
    
    if (rank == ROOT) {
       final_assignments = (int *)calloc(sizeof(int), length_data);
@@ -222,6 +223,7 @@ int main(int argc, char **argv) {
       /* Reduce (sum) the local cluster means onto root */
       
       MPI_Reduce(Cxtemp, Cx, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
+      MPI_Reduce(Cytemp, Cy, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       MPI_Reduce(Cztemp, Cz, k_total, MPI_FLOAT, MPI_SUM, ROOT, MPI_COMM_WORLD);
       MPI_Reduce(num_assigned_temp, num_assigned, k_total, MPI_INT, MPI_SUM, ROOT, MPI_COMM_WORLD);
 
@@ -229,18 +231,28 @@ int main(int argc, char **argv) {
       	MPI_Gather(assignments, send_element_count, MPI_INT, &(assignments_per_iter[iter*length_data]), send_element_count, MPI_INT, ROOT, MPI_COMM_WORLD);
       }
       
-      //if (rank == ROOT)
-         //printf("...Reduced...\n");
+      if (rank == ROOT)
+         //printf("...Reduced...%d\n", iter);
       
       /* As root calculate final cluster centers */
       
       if (rank == ROOT) {
          
          for (i = 0; i < k_total; i++) {
-            Cx[i] /= num_assigned[i];
-            Cy[i] /= num_assigned[i];
-            Cz[i] /= num_assigned[i];
+         
+            if(num_assigned[i] > 0) {
+         
+               assert(num_assigned[i] > 0);
+            
+               Cx[i] /= num_assigned[i];
+               Cy[i] /= num_assigned[i];
+               Cz[i] /= num_assigned[i];
+            
+            }
+            
+            //printf("%d (%f, %f, %f) with %d\n", i, Cx[i], Cy[i], Cz[i], num_assigned[i]);
          }
+         //printf("\n\n");
       }
       
       //if (rank == ROOT)
@@ -272,7 +284,7 @@ int main(int argc, char **argv) {
 
    
       iter++;
-   } while (changed);
+   } while (changed && iter < 1000);
    
    //if (rank == ROOT) {
    //   printf("...Finished clustering...\n");

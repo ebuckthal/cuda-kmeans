@@ -2,11 +2,12 @@
 __global__ void clusterAssign(float *Cx, float *Cy, float *Cz, float *Px, float *Py, float *Pz, int *assigns, int Pwidth, int k) 
 {
    int tid, i, temp_d, centerIdx;
-   int d = INT_MAX;
+   int d;
 
    tid = blockIdx.x * blockDim.x + threadIdx.x;
 
    while (tid < Pwidth) {
+      d = INT_MAX;
       for (i = 0; i < k; i++) {
          temp_d = (Px[tid] - Cx[i])*(Px[tid] - Cx[i]) 
                     + (Py[tid] - Cy[i])*(Py[tid] - Cy[i]) 
